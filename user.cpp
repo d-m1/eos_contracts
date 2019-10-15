@@ -57,4 +57,4 @@ private:
   };
   typedef eosio::multi_index<"users"_n, user> user_index;
 
-};    
+};
