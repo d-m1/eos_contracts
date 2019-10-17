@@ -25,7 +25,7 @@ public:
       });
     }
     else {
-      users.modify(iterator, user, [&]( auto& row ) {
+      users.modify(iterator, id, [&]( auto& row ) {
         row.id = id;
         row.role = role;
         row.timestamp = timestamp;
