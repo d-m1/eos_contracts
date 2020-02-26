@@ -1,0 +1,52 @@
+#include <eosio/eosio.hpp>
+
+using namespace eosio;
+
+class [[eosio::contract("request")]] request : public eosio::contract {
+
+public:
+  
+  request(name receiver, name code,  datastream<const char*> ds): contract(receiver, code, ds) {}
+
+  [[eosio::action]]
+  void append(name id, std::string user) {
+    require_auth( id );
+    user_index users( get_self(), get_first_receiver().value );
+    auto iterator = users.find(id.value);
+    if( iterator == users.end() )
+    {
+      users.emplace(id, [&]( auto& row ) {
+        row.id = id;
+        row.role = user;
+
+      });
+    }
+    else {
+      users.modify(iterator, id, [&]( auto& row ) {
+        row.id = id;
+        row.role = role;
+
+      });
+    }
+  }
+
+  [[eosio::action]]
+  void remove(name id) {
+    require_auth( id );
+
+    user_index users( get_self(), get_first_receiver().value);
+
+    auto iterator = users.find(id.value);
+    check(iterator != users.end(), "Record does not exist");
+    users.erase(iterator);
+  }
+
+private:
+  struct [[eosio::table]] requests {
+    name id;
+    std::string user;
+    uint64_t primary_key() const { return id.value; }
+  };
+  typedef eosio::multi_index<"requests"_n, user> user_index;
+
+};
